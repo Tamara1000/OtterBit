@@ -14,12 +14,10 @@ app.use("/api/v1/songs", routes.songs);
 app.use("/api/v1/users", routes.users);
 
 
-app.use("/api/v1/artists/analytics", analyticsRoutes.artists);
-app.use("/api/v1/favorites/analytics", analyticsRoutes.favorites);
-app.use("/api/v1/songs/analytics", analyticsRoutes.songs);
-//app.use("/api/v1/users/analytics", analyticsRoutes.users);
-
-
+app.use("/api/v1/analytics/artists", analyticsRoutes.artists);
+app.use("/api/v1/analytics/favorites", analyticsRoutes.favorites);
+app.use("/api/v1/analytics/songs", analyticsRoutes.songs);
+//app.use("/api/v1/analytics/users", analyticsRoutes.users);
 
 
 redisClient.connect().then(() => {

@@ -6,12 +6,12 @@ const {
 } = require("../controllers/favorites.controller");
 
 const { isPremium } = require("../middlewares/users.middleware");
+const { auth } = require("../middlewares/auth");
 
 
 const router = express.Router();
 
-router.post("/addSong", isPremium, addSongToFavorites);
-//router.post("/addSong", addSongToFavorites);
+router.post("/addSong", auth ,isPremium, addSongToFavorites);
 router.delete("/:user_id/delete/:song_id", deleteSongFromFavorites);
 router.get("/:user_id", getFavoritesById);
 

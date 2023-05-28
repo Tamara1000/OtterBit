@@ -1,11 +1,10 @@
 const { pool } = require("../db");
 
-
 //1.a
 // Request an artist name as a parameter
 // Response the songs of this specific artist
 const getSongsByArtistName = async (req, res) => {
-  const { artistName } = req.params;
+  const artistName = req.params.artistName?.toLowerCase();
   console.log(artistName);
   try {
     const result = await pool.query(
@@ -13,7 +12,7 @@ const getSongsByArtistName = async (req, res) => {
         SELECT song_id, song_title, song_duration, song_releaseYear 
         FROM songs 
         INNER JOIN artists ON songs.artist_id = artists.artist_id 
-        WHERE artists.artist_name = $1
+        WHERE lower(artist_name) LIKE $1
         `,
       [artistName]
     );
@@ -24,12 +23,11 @@ const getSongsByArtistName = async (req, res) => {
   }
 };
 
-
 //1.b
-// Request an artist partial name as a parameter 
+// Request an artist partial name as a parameter
 // Response the songs of this specific artist
 const getSongsByPartialArtistName = async (req, res) => {
-  const  artistName  = req.params.artistName?.toLowerCase();
+  const artistName = req.params.artistName?.toLowerCase();
   console.log(artistName);
   try {
     const result = await pool.query(
@@ -46,10 +44,7 @@ const getSongsByPartialArtistName = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal server error");
-  } 
+  }
 };
-
-
-
 
 module.exports = { getSongsByArtistName, getSongsByPartialArtistName };

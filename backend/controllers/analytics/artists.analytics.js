@@ -3,7 +3,9 @@ const { artistsLogger } = require("../../utils/log/artists.log");
 
 const getTopArtists = async (req, res) => {
   try {
-    const result = await pool.query(`
+    const { limit = 3 } = req.query;
+    const result = await pool.query(
+      `
       SELECT
   artists.artist_id,
   artists.artist_name,
@@ -19,9 +21,10 @@ GROUP BY
   artists.artist_name
 ORDER BY
   total_favorites DESC
-LIMIT
-  3;
-    `);
+    LIMIT  $1;
+      `,
+      [limit]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching top artists:", error);

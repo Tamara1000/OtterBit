@@ -1,31 +1,57 @@
 const { pool } = require("../db");
 const { redisClient } = require("../utils/cache");
 const { favoritesLogger } = require("../utils/log/favorites.log");
-//2.a1
-// Find user by name and add/remove song from their favoriteSongs list
+
 const addSongToFavorites = async (req, res) => {
   const { user_id, song_id } = req.body;
   console.log(user_id);
   console.log(song_id);
 
   try {
-    // Check if song is already in user's favorites
-    const favoritesResult = await pool.query(
-      "SELECT * FROM favorites WHERE user_id = $1 AND song_id = $2",
-      [user_id, song_id]
+    const songResult = await pool.query(
+      "SELECT * FROM songs WHERE song_id = $1",
+      [song_id]
     );
 
-    if (favoritesResult.rows.length === 0) {
-      // Add song to user's favorites
-      await client.query(
-        "INSERT INTO favorites (user_id, song_id) VALUES ($1, $2)",
-        [user_id, song_id]
+    if (songResult.rows.length === 0) {
+      pool.end();
+      return res.status(404).send("Song not found");
+    }
+    if (res.locals.isPremium == false) {
+      const favoritesNum = await pool.query(
+        "SELECT COUNT(*) as num_favorites FROM favorites WHERE user_id = $1",
+        [user_id]
       );
-      pool.end();
-      return res.send(`Song  ${song_id} added to  favorites of ${user_id}`);
-    } else {
-      pool.end();
-      return res.send(`Song ${song_id} is already in favorites of ${user_id}`);
+      if (favoritesNum.rows[0].num_favorites >= 5) {
+        return res
+          .status(404)
+          .send(
+            "Opps, you are nor a premium member so you can have on your list maximum 20 songs"
+          );
+      } else if (
+        res.locals.isPremium ||
+        (res.locals.isPremium == false &&
+          favoritesNum.rows[0].num_favorites < 20)
+      ) {
+        const favoritesResult = await pool.query(
+          "SELECT * FROM favorites WHERE user_id = $1 AND song_id = $2",
+          [user_id, song_id]
+        );
+        if (favoritesResult.rows.length === 0) {
+          // Add song to user's favorites
+          await pool.query(
+            "INSERT INTO favorites (user_id, song_id) VALUES ($1, $2)",
+            [user_id, song_id]
+          );
+          pool.end();
+          return res.send(`Song  ${song_id} added to  favorites of ${user_id}`);
+        } else {
+          pool.end();
+          return res.send(
+            `Song ${song_id} is already in favorites of ${user_id}`
+          );
+        }
+      }
     }
   } catch (err) {
     console.error(err);
@@ -34,8 +60,6 @@ const addSongToFavorites = async (req, res) => {
   }
 };
 
-//2.a2
-// Find user by name and remove song from their favoriteSongs list
 const deleteSongFromFavorites = async (req, res) => {
   const user_id = req.params.user_id;
   const song_id = req.params.song_id;
@@ -87,8 +111,6 @@ const deleteSongFromFavorites = async (req, res) => {
   }
 };
 
-// 2.b
-// Route to get favorite songs by userName
 const getFavoritesById = async (req, res) => {
   const { user_id } = req.params;
   console.log(user_id);

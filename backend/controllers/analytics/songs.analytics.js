@@ -3,7 +3,9 @@ const { pool } = require("./../../db");
 
 const getTopSongsByDecade = async (req, res) => {
   try {
-    const result = await pool.query(`
+    const { limit = 3 } = req.query;
+    const result = await pool.query(
+      `
         SELECT *
           FROM (
             SELECT 
@@ -22,10 +24,12 @@ const getTopSongsByDecade = async (req, res) => {
               s.song_releaseYear
           ) AS subquery
           WHERE
-            row_num <= 3
+            row_num <= $1
           ORDER BY
             song_releaseYear, favorability_rank DESC;
-    `);
+    `,
+      [limit]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching top songs by decade:", error);
@@ -35,20 +39,25 @@ const getTopSongsByDecade = async (req, res) => {
 
 const getTopLongestAndShortestSongs = async (req, res) => {
   try {
-    const longestQuery = await pool.query(`
+    const { limit = 3 } = req.query;
+    const longestQuery = await pool.query(
+      `
       SELECT song_title, song_duration
       FROM songs
       ORDER BY song_duration DESC
-      LIMIT 3;
-    `);
-
-    const shortestQuery = await pool.query(`
+      LIMIT $1;
+      `,
+      [limit]
+    );
+    const shortestQuery = await pool.query(
+      `
       SELECT song_title, song_duration
       FROM songs
       ORDER BY song_duration ASC
-      LIMIT 3;
-    `);
-
+      LIMIT  $1;
+      `,
+      [limit]
+    );
     res.json({
       longestSongs: longestQuery.rows,
       shortestSongs: shortestQuery.rows,
@@ -63,5 +72,3 @@ module.exports = {
   getTopSongsByDecade,
   getTopLongestAndShortestSongs,
 };
-
-
