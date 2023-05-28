@@ -36,10 +36,10 @@ Start the server:
 bash
 Copy code
 npm start
-The server will start running on http://localhost:3000.
+The server will start running on http://localhost:1200.
 
 Usage
-Open your web browser and navigate to http://localhost:3000.
+Open your web browser and navigate to http://localhost:1200.
 Use the search bar to search for an artist's name.
 The list of the artist's songs will be displayed, including the song ID, title, duration, and release year.
 Click the "Add to Favorites" button next to a song to add it to your favorites list. Clicking the button again will remove the song from your favorites list.
