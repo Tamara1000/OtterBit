@@ -1,8 +1,5 @@
 const { pool } = require("../db");
 
-//1.a
-// Request an artist name as a parameter
-// Response the songs of this specific artist
 const getSongsByArtistName = async (req, res) => {
   const artistName = req.params.artistName?.toLowerCase();
   console.log(artistName);
@@ -23,9 +20,6 @@ const getSongsByArtistName = async (req, res) => {
   }
 };
 
-//1.b
-// Request an artist partial name as a parameter
-// Response the songs of this specific artist
 const getSongsByPartialArtistName = async (req, res) => {
   const artistName = req.params.artistName?.toLowerCase();
   console.log(artistName);
@@ -43,7 +37,7 @@ const getSongsByPartialArtistName = async (req, res) => {
     res.json(songs);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Internal server error");
+    return res.sendStatus(500);
   }
 };
 

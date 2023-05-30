@@ -14,7 +14,7 @@ const auth = async (req, res, next) => {
     res.locals.user = payload;
    next();
   } catch (error) {
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
   // res.send("Testing the token")
 };

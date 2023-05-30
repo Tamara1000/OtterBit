@@ -1,6 +1,6 @@
 const { createLogger, transport, format, transports } = require("winston");
 
-//-------logging function
+
 
 const songsLogger = createLogger({
   transports: [
@@ -13,6 +13,17 @@ const songsLogger = createLogger({
     new transports.File({
       filename: "songs.error.log",
       level: "error",
+      format: format.combine(format.timestamp(), format.json()),
+    }),
+    new transports.File({
+      filename: "songs.debug.log",
+      level: "debug",
+      format: format.combine(format.timestamp(), format.json()),
+    }),
+
+    new transports.File({
+      filename: "songs.warn.log",
+      level: "warn",
       format: format.combine(format.timestamp(), format.json()),
     }),
   ],

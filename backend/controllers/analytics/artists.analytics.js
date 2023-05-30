@@ -28,7 +28,7 @@ ORDER BY
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching top artists:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.sendStatus(500);
   }
 };
 

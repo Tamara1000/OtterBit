@@ -15,7 +15,7 @@ const addSongToFavorites = async (req, res) => {
 
     if (songResult.rows.length === 0) {
       pool.end();
-      return res.status(404).send("Song not found");
+      return res.sendStatus(404);
     }
     if (res.locals.isPremium == false) {
       const favoritesNum = await pool.query(
@@ -23,11 +23,7 @@ const addSongToFavorites = async (req, res) => {
         [user_id]
       );
       if (favoritesNum.rows[0].num_favorites >= 5) {
-        return res
-          .status(404)
-          .send(
-            "Opps, you are nor a premium member so you can have on your list maximum 20 songs"
-          );
+        return res.sendStatus(404);
       } else if (
         res.locals.isPremium ||
         (res.locals.isPremium == false &&
@@ -38,7 +34,7 @@ const addSongToFavorites = async (req, res) => {
           [user_id, song_id]
         );
         if (favoritesResult.rows.length === 0) {
-          // Add song to user's favorites
+
           await pool.query(
             "INSERT INTO favorites (user_id, song_id) VALUES ($1, $2)",
             [user_id, song_id]
@@ -55,7 +51,7 @@ const addSongToFavorites = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    // favoritesLogger.error("blablabla");
+     favoritesLogger.error("blablabla");
     res.status(500).send("Internal server error");
   }
 };
@@ -69,13 +65,13 @@ const deleteSongFromFavorites = async (req, res) => {
   try {
     const client = await pool.connect();
 
-    // Check if user exists
+    
     const userResult = await client.query(
       "SELECT * FROM users WHERE user_id = $1",
       [user_id]
     );
 
-    // Check if song exists
+   
     const songResult = await client.query(
       "SELECT * FROM songs WHERE song_id = $1",
       [song_id]
@@ -86,7 +82,7 @@ const deleteSongFromFavorites = async (req, res) => {
       return res.status(404).send("User or song not found");
     }
 
-    // Check if song is already in user's favorites
+  
     const favoritesResult = await client.query(
       "SELECT * FROM favorites WHERE user_id = $1 AND song_id = $2",
       [user_id, song_id]
@@ -98,7 +94,7 @@ const deleteSongFromFavorites = async (req, res) => {
       );
     }
 
-    // Remove song from user's favorites
+  
     await client.query(
       "DELETE FROM favorites WHERE user_id = $1 AND song_id = $2",
       [user_id, song_id]
@@ -115,8 +111,7 @@ const getFavoritesById = async (req, res) => {
   const { user_id } = req.params;
   console.log(user_id);
   try {
-    // Check if the favorite songs are cached in Redis
-    //const cachedSongs = await getAsync(user_id);
+
     const cachedSongs = await redisClient.get(user_id);
     console.log(cachedSongs);
     console.log(cachedSongs);
@@ -127,17 +122,17 @@ const getFavoritesById = async (req, res) => {
     }
 
     try {
-      // Check if the user exists
+      
       const userResult = await pool.query(
         "SELECT * FROM users WHERE user_id = $1",
         [user_id]
       );
 
       if (userResult.rows.length === 0) {
-        return res.status(404).send("User not found");
+        return res.sendStatus(404);
       }
 
-      // Get the user's favorite songs from the database
+    
       const favoritesResult = await pool.query(
         `
           SELECT songs.song_id, songs.song_title, songs.song_duration, songs.song_releaseYear
@@ -150,7 +145,6 @@ const getFavoritesById = async (req, res) => {
 
       const favoriteSongs = favoritesResult.rows;
 
-      // Store the favorite songs in Redis for future requests
       await redisClient.set(user_id, JSON.stringify(favoriteSongs));
 
       console.log("Successfully got list of favorites");
@@ -159,9 +153,9 @@ const getFavoritesById = async (req, res) => {
       client.release();
     }
   } catch (err) {
-    logger.favoritesLogger.error("Error finding favorites");
+    favoritesLogger.error("Error finding favorites");
     console.error(err);
-    res.status(500).send("Internal server error");
+    return res.sendStatus(500);
   }
 };
 

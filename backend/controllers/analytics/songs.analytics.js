@@ -33,7 +33,7 @@ const getTopSongsByDecade = async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching top songs by decade:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.sendStatus(500);
   }
 };
 
@@ -64,7 +64,7 @@ const getTopLongestAndShortestSongs = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching top longest and shortest songs:", error);
-    res.status(500).json({ error: "Internal server error" });
+    return res.sendStatus(500);
   }
 };
 

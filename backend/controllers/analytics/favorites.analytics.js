@@ -20,7 +20,7 @@ const getTopFavorableSongs = async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching top songs:", error);
-    res.status(500).json({ error: "Internal server error" });
+   return res.sendStatus(500);
   }
 };
 

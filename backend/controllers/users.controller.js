@@ -35,7 +35,7 @@ const logIn = async (req, res) => {
     const client = await pool.connect();
     const { user_email, user_password } = req.body;
     if (!user_email || !user_password) {
-      return res.status(401).send("Please enter");
+      return res.sendStatus(401);
     }
     const userResult = await pool.query(
       "SELECT * FROM users WHERE user_email = $1",
@@ -49,11 +49,11 @@ const logIn = async (req, res) => {
 
       return res.status(200).send({ token, user: userResult.rows[0] });
     } else {
-      return res.status(401).send("User not exists");
+      return res.sendStatus(401);
     }
   } catch (error) {
     console.log(error);
-    return res.status(400).send("Bad Request Error");
+    return res.sendStatus(400);
   }
 };
 
